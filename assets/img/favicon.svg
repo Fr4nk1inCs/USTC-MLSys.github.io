@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Open Horizon Lab">
+  <rect width="128" height="128" rx="24" fill="#121417"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#f4f1ea" stroke-width="6"/>
+  <path d="M36 72c8-22 22-34 42-36 10-1 20 1 30 7" fill="none" stroke="#0f8b8d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M28 86c20-6 36-10 54-8 11 1 21 4 29 9" fill="none" stroke="#c26a3d" stroke-width="8" stroke-linecap="round"/>
+</svg>
