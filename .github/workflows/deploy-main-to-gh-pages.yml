@@ -22,9 +22,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r tools/requirements.txt
+        run: python -m pip install --upgrade pip && pip install -r tools/requirements.txt
 
       - name: Build site
         run: python build.py
@@ -32,6 +30,7 @@ jobs:
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}   # 首选 GITHUB_TOKEN
+          personal_token: ${{ secrets.DEPLOY_PAT }}  # 如果 GITHUB_TOKEN 被拒，可用 DEPLOY_PAT 回退
           publish_dir: ./dist
           publish_branch: gh-pages
