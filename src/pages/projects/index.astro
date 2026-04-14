@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { site } from '../../data/site.ts';
+
+const projects = await getCollection('projects');
+projects.sort((a, b) => {
+  if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+  return (b.data.year ?? 0) - (a.data.year ?? 0);
+});
+---
+<BaseLayout title="Projects" description="Research projects from MLSys Lab." currentSection="projects" pageKind="projects">
+  <section class="page-intro">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>{site.tagline}</p>
+      <h1 class="page-intro__title" data-reveal>Projects</h1>
+      <p class="page-intro__summary" data-reveal>Systems for distributed LLM training and efficient AI infrastructure.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="shell">
+      <div class="card-grid card-grid--projects" data-filter-container>
+        {projects.map(project => <ProjectCard project={project} />)}
+        {projects.length === 0 && (
+          <p class="muted">No projects yet.</p>
+        )}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

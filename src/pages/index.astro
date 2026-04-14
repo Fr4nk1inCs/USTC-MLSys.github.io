@@ -1,0 +1,170 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import HeroTimeline from '../components/HeroTimeline.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import BlogCard from '../components/BlogCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { site } from '../data/site.ts';
+
+const allPublications = await getCollection('publications');
+const allBlog = await getCollection('blog', ({ data }) => data.status === 'published');
+const allProjects = await getCollection('projects');
+
+const pubIndex = Object.fromEntries(allPublications.map(p => [p.id, p]));
+const projectIndex = Object.fromEntries(allProjects.map(p => [p.id, p]));
+
+const featuredPublications = site.featuredPaperSlugs
+  .map(s => pubIndex[s])
+  .filter(Boolean);
+
+const featuredBlog = allBlog
+  .filter(p => p.data.featured)
+  .sort((a, b) => b.data.date.localeCompare(a.data.date))
+  .slice(0, 3);
+
+const featuredProjects = site.featuredProjectSlugs
+  .map(s => projectIndex[s])
+  .filter(Boolean)
+  .concat(allProjects.filter(p => p.data.featured))
+  .filter((v, i, a) => a.findIndex(x => x?.id === v?.id) === i)
+  .slice(0, 3);
+
+const { hero, announcement, stats, researchAreas, principles, collaboration } = site;
+---
+<BaseLayout title={site.labName} description={site.description} currentSection="home" pageKind="home">
+  {announcement && (
+    <a class="announcement shell" href={announcement.url}>
+      <span class="announcement__label">{announcement.label}</span>
+      <span class="announcement__text">{announcement.text}</span>
+    </a>
+  )}
+
+  <section class="hero">
+    <div class="shell hero__grid">
+      <div class="hero__copy">
+        <p class="hero__eyebrow" data-reveal>{hero.eyebrow}</p>
+        <h1 class="hero__title" data-reveal>{hero.headline}</h1>
+        <p class="hero__summary" data-reveal>{hero.subheadline}</p>
+        <div class="hero__actions" data-reveal>
+          <a class="button button--primary" href={hero.primaryCta.url}>{hero.primaryCta.label}</a>
+          <a class="button button--ghost" href={hero.secondaryCta.url}>{hero.secondaryCta.label}</a>
+          <a class="button button--ghost" href={hero.tertiaryCta.url}>{hero.tertiaryCta.label}</a>
+        </div>
+        {stats.length > 0 && (
+          <div class="hero__metrics">
+            {stats.map(item => (
+              <article class="metric-card" data-reveal>
+                <span class="metric-card__value">{item.value}</span>
+                <span class="metric-card__label">{item.label}</span>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+      <div class="hero__visual" data-reveal>
+        <HeroTimeline />
+      </div>
+    </div>
+  </section>
+
+  {(featuredBlog.length > 0 || featuredProjects.length > 0 || featuredPublications.length > 0) && (
+    <section class="section section--spotlight">
+      <div class="shell">
+        <SectionHeading eyebrow="Featured" title="Latest from the lab." />
+        <div class="spotlight-grid">
+          {featuredProjects[0] && <ProjectCard project={featuredProjects[0]} compact={true} />}
+          {featuredBlog[0] && <BlogCard post={featuredBlog[0]} compact={true} />}
+          {featuredPublications[0] && <PublicationCard publication={featuredPublications[0]} compact={true} />}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {researchAreas.length > 0 && (
+    <section class="section">
+      <div class="shell">
+        <SectionHeading eyebrow="Research Areas" title="What we work on." />
+        <div class="theme-grid">
+          {researchAreas.map(area => (
+            <article class="theme-card" data-reveal>
+              <div class="theme-card__eyebrow">{area.keywords.join(' / ')}</div>
+              <h3>{area.name}</h3>
+              <p>{area.summary}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featuredBlog.length > 0 && (
+    <section class="section">
+      <div class="shell">
+        <SectionHeading eyebrow="Blog" title="Technical writeups." actionHref="/blog/" actionLabel="All posts" />
+        <div class="card-grid card-grid--projects">
+          {featuredBlog.map(post => <BlogCard post={post} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featuredProjects.length > 0 && (
+    <section class="section">
+      <div class="shell">
+        <SectionHeading eyebrow="Projects" title="Research projects." actionHref="/projects/" actionLabel="View all projects" />
+        <div class="card-grid card-grid--projects">
+          {featuredProjects.map(project => <ProjectCard project={project} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featuredPublications.length > 0 && (
+    <section class="section">
+      <div class="shell">
+        <SectionHeading
+          eyebrow="Publications"
+          title="Research publications and award-winning publications from the lab."
+          description="Peer-reviewed work on distributed training, tensor core optimization, and efficient AI systems published at top-tier venues."
+          actionHref="/publications/"
+          actionLabel="View all publications"
+        />
+        <div class="timeline-stack">
+          {featuredPublications.map(pub => <PublicationCard publication={pub} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {(principles.length > 0 || collaboration.links.length > 0) && (
+    <section class="section section--contrast">
+      <div class="shell section-split">
+        <div>
+          <SectionHeading eyebrow="" title="" />
+          <div class="principle-grid">
+            {principles.map(item => (
+              <article class="principle-card" data-reveal>
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+        {collaboration.links.length > 0 && (
+          <aside class="collaboration-panel" data-reveal>
+            <p class="collaboration-panel__eyebrow">Links</p>
+            <h3>{collaboration.title || 'Public links'}</h3>
+            <p>{collaboration.summary}</p>
+            <div class="collaboration-panel__actions">
+              {collaboration.links.map(link => (
+                <a class="button button--ghost" href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
+              ))}
+            </div>
+          </aside>
+        )}
+      </div>
+    </section>
+  )}
+</BaseLayout>

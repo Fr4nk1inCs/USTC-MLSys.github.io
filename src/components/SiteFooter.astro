@@ -1,0 +1,39 @@
+---
+import { site } from '../data/site.ts';
+import { getCollection } from 'astro:content';
+
+const blog = await getCollection('blog');
+const publications = await getCollection('publications');
+const team = await getCollection('team');
+
+const footerLinks: Array<{ href: string; label: string }> = [
+  { href: '/projects/', label: 'Projects' },
+];
+if (blog.length > 0) footerLinks.push({ href: '/blog/', label: 'Blog' });
+if (publications.length > 0) footerLinks.push({ href: '/publications/', label: 'Publications' });
+if (team.length > 0) footerLinks.push({ href: '/team/', label: 'Team' });
+if (site.github) footerLinks.push({ href: site.github, label: 'GitHub' });
+if (site.email) footerLinks.push({ href: `mailto:${site.email}`, label: site.email });
+---
+<footer class="site-footer">
+  <div class="shell site-footer__inner">
+    <div class="site-footer__intro">
+      <p class="site-footer__eyebrow">{site.tagline}</p>
+      <h2>{site.labName}</h2>
+      <p>{site.description}</p>
+    </div>
+    <div class="site-footer__meta">
+      {site.location && <p>{site.location}</p>}
+      {footerLinks.length > 0 && (
+        <div class="site-footer__links">
+          {footerLinks.map(({ href, label }) => (
+            <a
+              href={href}
+              {...(href.startsWith('http') || href.startsWith('mailto:') ? { target: '_blank', rel: 'noreferrer' } : {})}
+            >{label}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</footer>

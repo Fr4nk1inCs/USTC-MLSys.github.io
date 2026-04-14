@@ -1,0 +1,62 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DetailIntro from '../../components/DetailIntro.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const metaParts: string[] = [];
+if (post.data.author) metaParts.push(post.data.author);
+if (post.data.date) {
+  const d = new Date(post.data.date + 'T00:00:00');
+  metaParts.push(d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' }));
+}
+const meta = metaParts.join(' / ');
+
+const tocItems = headings.filter(h => h.depth <= 2);
+---
+<BaseLayout
+  title={post.data.title}
+  description={post.data.summary}
+  currentSection="blog"
+  pageKind="blog-detail"
+>
+  <DetailIntro
+    title={post.data.title}
+    eyebrow={post.data.pageLabel}
+    summary={post.data.description ?? post.data.summary}
+    meta={meta}
+    tags={post.data.tags}
+    extraLinks={post.data.links}
+  />
+  <section class="section detail-section">
+    <div class="shell detail-layout">
+      <article class="detail-prose" data-reveal>
+        <Content />
+      </article>
+      <aside class="detail-sidebar" data-reveal>
+        {tocItems.length > 0 && (
+          <nav class="toc-nav" data-toc>
+            <p class="toc-nav__eyebrow">Contents</p>
+            <ul class="toc-nav__list">
+              {tocItems.map(h => (
+                <li>
+                  <a href={`#${h.slug}`} data-toc-link>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

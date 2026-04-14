@@ -1,0 +1,51 @@
+export const site = {
+  labName: 'MLSys Lab',
+  shortName: 'MLSys',
+  tagline: 'MLSys @ USTC',
+  description: 'Machine Learning Systems research group at the University of Science and Technology of China.',
+  baseUrl: 'https://ustc-mlsys.github.io',
+  email: '',
+  github: '',
+  location: 'University of Science and Technology of China',
+  announcement: null as null | { label: string; text: string; url: string },
+  hero: {
+    eyebrow: 'MLSys Lab',
+    headline: 'Advancing Scalable and Efficient Systems',
+    subheadline: 'Distributed LLM training systems, tensor core optimization, and technical notes.',
+    primaryCta: { label: 'Projects', url: '/projects/' },
+    secondaryCta: { label: 'Blogs', url: '/blog/' },
+    tertiaryCta: { label: 'Publications', url: '/publications/' },
+  },
+  stats: [] as Array<{ value: string; label: string }>,
+  featuredProjectSlugs: ['dhellam', 'tccl'],
+  featuredPaperSlugs: [
+    'dhellam-iccd-2025',
+    'tccl-nsdi-2025',
+    'bigmac-tocs-2025',
+    'eliminating-inter-expert-osdi-2024',
+  ],
+  featuredNewsSlugs: [] as string[],
+  researchAreas: [
+    {
+      name: 'Parallel and Distributed Intelligent Computing',
+      summary: 'Automatic micro-batch co-execution, tensor core scheduling, and efficient distributed LLM training.',
+      keywords: ['parallel computing', 'distributed systems', 'AI systems'],
+    },
+    {
+      name: 'Storage Systems',
+      summary: 'Cloud-edge query processing, data-centric system design.',
+      keywords: ['storage', 'data systems', 'infrastructure'],
+    },
+    {
+      name: 'Data-Centric System Design',
+      summary: 'Data-centric perspective across large model system design problems.',
+      keywords: ['data-centric', 'systems', 'large models'],
+    },
+  ],
+  principles: [] as Array<{ title: string; summary: string }>,
+  collaboration: {
+    title: '',
+    summary: '',
+    links: [] as Array<{ label: string; url: string }>,
+  },
+};

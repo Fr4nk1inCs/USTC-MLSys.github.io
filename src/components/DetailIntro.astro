@@ -1,0 +1,53 @@
+---
+import TagChips from './TagChips.astro';
+
+interface Props {
+  title: string;
+  eyebrow: string;
+  summary: string;
+  meta?: string;
+  tags?: string[];
+  pdfUrl?: string;
+  codeUrl?: string;
+  extraLinks?: Record<string, string>;
+}
+
+const { title, eyebrow, summary, meta, tags = [], pdfUrl, codeUrl, extraLinks = {} } = Astro.props;
+
+const allLinks: Record<string, string> = {};
+if (pdfUrl) allLinks['PDF'] = pdfUrl;
+if (codeUrl) allLinks['Code'] = codeUrl;
+Object.assign(allLinks, extraLinks);
+const linkEntries = Object.entries(allLinks).filter(([, url]) => url);
+---
+<section class="detail-hero">
+  <div class="shell detail-hero__grid">
+    <div>
+      <p class="detail-hero__eyebrow" data-reveal>{eyebrow}</p>
+      <h1 class="detail-hero__title" data-reveal>{title}</h1>
+      <p class="detail-hero__summary" data-reveal>{summary}</p>
+      {meta && (
+        <div class="detail-hero__meta" data-reveal>
+          <span>{meta}</span>
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div class="detail-hero__tags" data-reveal>
+          <TagChips tags={tags} />
+        </div>
+      )}
+      {linkEntries.length > 0 && (
+        <div class="detail-hero__actions" data-reveal>
+          {linkEntries.map(([label, url]) => (
+            <a
+              class="button button--ghost"
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+            >{label}</a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
