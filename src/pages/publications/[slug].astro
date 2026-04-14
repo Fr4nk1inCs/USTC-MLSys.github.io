@@ -1,0 +1,62 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DetailIntro from '../../components/DetailIntro.astro';
+
+export async function getStaticPaths() {
+  const publications = await getCollection('publications');
+  return publications.map(pub => ({
+    params: { slug: pub.id },
+    props: { pub },
+  }));
+}
+
+const { pub } = Astro.props;
+const { Content } = await render(pub);
+
+const datePart = pub.data.month?.trim()
+  ? `${pub.data.month} ${pub.data.year}`
+  : String(pub.data.year);
+
+let meta = [pub.data.venue, datePart].filter(Boolean).join(' / ');
+if (pub.data.award) meta = `${meta} / ${pub.data.award}`;
+---
+<BaseLayout
+  title={pub.data.title}
+  description={pub.data.summary}
+  currentSection="publications"
+  pageKind="publication-detail"
+>
+  <DetailIntro
+    title={pub.data.title}
+    eyebrow="Publication"
+    summary={pub.data.abstract ?? pub.data.summary}
+    meta={meta}
+    tags={pub.data.tags}
+    pdfUrl={pub.data.pdfUrl}
+    codeUrl={pub.data.codeUrl}
+  />
+  <section class="section detail-section">
+    <div class="shell detail-layout">
+      <article class="detail-prose" data-reveal>
+        <section class="prose-block">
+          <h2 class="prose__heading">Authors</h2>
+          <p>{pub.data.authors.join(', ')}</p>
+        </section>
+        <Content />
+      </article>
+      <aside class="detail-sidebar" data-reveal>
+        <div class="detail-sidebar__panel">
+          <p class="detail-sidebar__eyebrow">Research area</p>
+          <p>{pub.data.researchArea}</p>
+        </div>
+        <div class="detail-sidebar__panel">
+          <p class="detail-sidebar__eyebrow">Related output</p>
+          <div class="detail-sidebar__stack">
+            <p class="muted">No related entries on the site.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

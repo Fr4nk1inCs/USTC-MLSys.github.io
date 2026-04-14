@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+
+const MAX_ITEMS = 3;
+
+type TimelineItem = {
+  type: 'blog' | 'publication' | 'project';
+  date: string;
+  title: string;
+  url: string;
+  accent: string;
+};
+
+const [blog, publications, projects] = await Promise.all([
+  getCollection('blog', ({ data }) => data.status === 'published'),
+  getCollection('publications'),
+  getCollection('projects'),
+]);
+
+const items: TimelineItem[] = [
+  ...blog.map(p => ({
+    type: 'blog' as const,
+    date: p.data.date,
+    title: p.data.title,
+    url: `/blog/${p.id}/`,
+    accent: 'blog',
+  })),
+  ...publications.map(p => ({
+    type: 'publication' as const,
+    date: `${p.data.year}-00-00`,
+    title: p.data.title,
+    url: `/publications/${p.id}/`,
+    accent: p.data.award ? 'award' : 'publication',
+  })),
+  ...projects.map(p => ({
+    type: 'project' as const,
+    date: p.data.year ? `${p.data.year}-00-00` : '0000-00-00',
+    title: p.data.title,
+    url: `/projects/${p.id}/`,
+    accent: 'project',
+  })),
+];
+
+items.sort((a, b) => b.date.localeCompare(a.date));
+const selected = items.slice(0, MAX_ITEMS);
+
+const typeLabels: Record<string, string> = {
+  blog: 'Blog',
+  publication: 'Publication',
+  project: 'Project',
+};
+---
+{selected.length > 0 && (
+  <div class="hero-timeline">
+    {selected.map(item => (
+      <a href={item.url} class={`hero-timeline__item hero-timeline__item--${item.accent}`}>
+        <div class="hero-timeline__content">
+          <span class="hero-timeline__label">{typeLabels[item.type]}</span>
+          <span class="hero-timeline__date">{item.date.slice(0, 4)}</span>
+          <strong class="hero-timeline__title">{item.title}</strong>
+        </div>
+      </a>
+    ))}
+  </div>
+)}

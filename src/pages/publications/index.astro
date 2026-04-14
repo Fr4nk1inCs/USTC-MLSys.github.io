@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PublicationCard from '../../components/PublicationCard.astro';
+import { site } from '../../data/site.ts';
+
+const publications = await getCollection('publications');
+publications.sort((a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title));
+
+// Group by year
+const grouped = new Map<number, typeof publications>();
+for (const pub of publications) {
+  const year = pub.data.year;
+  if (!grouped.has(year)) grouped.set(year, []);
+  grouped.get(year)!.push(pub);
+}
+const years = [...grouped.keys()].sort((a, b) => b - a);
+---
+<BaseLayout title="Publications" description="Selected recent publications from the lab." currentSection="publications" pageKind="publications">
+  <section class="page-intro">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>{site.tagline}</p>
+      <h1 class="page-intro__title" data-reveal>Publications</h1>
+      <p class="page-intro__summary" data-reveal>Research on distributed training, tensor core optimization, and efficient AI systems.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="shell">
+      <div class="timeline-stack">
+        {years.map(year => (
+          <section class="timeline-group">
+            <div class="timeline-group__year" data-reveal>{year}</div>
+            <div class="timeline-group__items">
+              {grouped.get(year)!.map(pub => <PublicationCard publication={pub} />)}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
