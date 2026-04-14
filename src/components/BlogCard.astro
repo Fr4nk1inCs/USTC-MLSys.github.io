@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from "astro:content";
+import TagChips from "./TagChips.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  compact?: boolean;
+}
+
+const { post, compact = false } = Astro.props;
+const { data, id: slug } = post;
+
+const imageSrc = data.coverImage || null;
+const classes = [
+  "project-card",
+  `project-card--${data.tone}`,
+  compact ? "project-card--compact" : "",
+  imageSrc ? "project-card--has-media" : "",
+]
+  .filter(Boolean)
+  .join(" ");
+
+const filterTags = data.tags
+  .map((t: string) => t.toLowerCase().replace(/\s+/g, "-"))
+  .join(" ");
+---
+<article class={classes} data-reveal data-filter-item data-filter-tags={filterTags}>
+  <div>
+    <div class="card-kicker">
+      <span>{data.pageLabel}</span>
+    </div>
+    <h3 class="project-card__title">
+      <a href={`/blog/${slug}/`}>{data.title}</a>
+    </h3>
+    {data.subtitle && <p class="project-card__subtitle">{data.subtitle}</p>}
+    <p class="project-card__summary">{data.summary}</p>
+    <div class="chip-row">
+      <TagChips tags={data.tags.slice(0, 4)} />
+    </div>
+  </div>
+  {imageSrc && (
+    <div class="project-card__media">
+      <img src={imageSrc} alt={data.title} loading="lazy" />
+    </div>
+  )}
+</article>

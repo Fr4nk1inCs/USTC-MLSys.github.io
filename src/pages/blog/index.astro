@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogCard from "../../components/BlogCard.astro";
+import { site } from "../../data/site.ts";
+
+const posts = await getCollection(
+  "blog",
+  ({ data }) => data.status === "published",
+);
+posts.sort((a, b) => b.data.date.localeCompare(a.data.date));
+---
+<BaseLayout title="Blog" description="Technical notes and research commentary from MLSys Lab." currentSection="blog" pageKind="blog">
+  <section class="page-intro">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>{site.tagline}</p>
+      <h1 class="page-intro__title" data-reveal>Blogs</h1>
+      <p class="page-intro__summary" data-reveal>Technical notes on systems, publications, and implementation details.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="shell">
+      <div class="card-grid card-grid--projects">
+        {posts.map(post => <BlogCard post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Page not found" description="The page you requested does not exist." pageKind="404">
+  <section class="page-intro page-intro--tight">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>Error 404</p>
+      <h1 class="page-intro__title" data-reveal>Page not found.</h1>
+      <p class="page-intro__summary" data-reveal>This page does not exist or may have moved.</p>
+      <div class="page-intro__actions" data-reveal>
+        <a class="button button--primary" href="/">Go home</a>
+        <a class="button button--ghost" href="/blog/">Browse blog</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

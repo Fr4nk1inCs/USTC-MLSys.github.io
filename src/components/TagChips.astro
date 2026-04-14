@@ -1,0 +1,10 @@
+---
+interface Props {
+  tags: string[];
+  extraClass?: string;
+}
+const { tags, extraClass = "" } = Astro.props;
+---
+{tags.map(tag => (
+  <span class={`chip${extraClass ? ' ' + extraClass : ''}`}>{tag}</span>
+))}

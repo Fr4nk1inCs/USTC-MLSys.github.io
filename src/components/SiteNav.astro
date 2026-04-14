@@ -1,0 +1,73 @@
+---
+import { site } from "../data/site.ts";
+import { getCollection } from "astro:content";
+
+interface Props {
+  currentSection: string;
+}
+
+const { currentSection } = Astro.props;
+
+const brandMark = site.labName
+  .split(" ")
+  .slice(0, 2)
+  .map((w: string) => w[0])
+  .join("")
+  .toUpperCase();
+
+// Build nav items dynamically
+const blog = await getCollection("blog");
+const publications = await getCollection("publications");
+const team = await getCollection("team");
+
+const navItems: Array<{ href: string; label: string; section: string }> = [
+  { href: "/projects/", label: "Projects", section: "projects" },
+];
+if (blog.length > 0)
+  navItems.push({ href: "/blog/", label: "Blog", section: "blog" });
+if (publications.length > 0)
+  navItems.push({
+    href: "/publications/",
+    label: "Publications",
+    section: "publications",
+  });
+if (team.length > 0)
+  navItems.push({ href: "/team/", label: "Team", section: "team" });
+
+const collaborationLink = site.collaboration.links[0];
+---
+<header class="site-header" data-site-header>
+  <div class="shell site-header__inner">
+    <a class="brand" href="/">
+      <span class="brand__mark">{brandMark}</span>
+      <span class="brand__text">
+        <strong>{site.labName}</strong>
+        <small>{site.tagline}</small>
+      </span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="site-search">
+      <input type="search" class="site-search__input" placeholder="Search..." data-search-input aria-label="Search" />
+      <div class="site-search__results" data-search-results></div>
+    </div>
+    <nav class="site-nav" id="site-nav" data-menu-panel>
+      {navItems.map(({ href, label, section }) => (
+        <a
+          class={`site-nav__link${currentSection === section ? ' is-active' : ''}`}
+          href={href}
+        >{label}</a>
+      ))}
+      {collaborationLink && (
+        <a
+          class="button button--primary button--compact site-nav__cta"
+          href={collaborationLink.url}
+          target="_blank"
+          rel="noreferrer"
+        >{collaborationLink.label}</a>
+      )}
+    </nav>
+  </div>
+</header>

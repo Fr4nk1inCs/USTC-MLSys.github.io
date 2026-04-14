@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import DetailIntro from "../../components/DetailIntro.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const metaParts = [
+  project.data.category,
+  project.data.status,
+  project.data.year ? String(project.data.year) : "",
+].filter(Boolean);
+const meta = metaParts.join(" / ");
+---
+<BaseLayout
+  title={project.data.title}
+  description={project.data.summary}
+  currentSection="projects"
+  pageKind="project-detail"
+>
+  <DetailIntro
+    title={project.data.title}
+    eyebrow={project.data.pageLabel}
+    summary={project.data.description ?? project.data.summary}
+    meta={meta}
+    tags={project.data.tags}
+    extraLinks={project.data.links}
+  />
+  <section class="section detail-section">
+    <div class="shell detail-layout">
+      <article class="detail-prose" data-reveal>
+        <Content />
+      </article>
+      <aside class="detail-sidebar" data-reveal>
+        {project.data.metrics.length > 0 && (
+          <div class="detail-sidebar__panel">
+            <p class="detail-sidebar__eyebrow">Project facts</p>
+            <div class="fact-list">
+              {project.data.metrics.map((m: { value: string; label: string }) => (
+                <div class="fact-item">
+                  <span class="fact-item__value">{m.value}</span>
+                  <span class="fact-item__label">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div class="detail-sidebar__panel">
+          <p class="detail-sidebar__eyebrow">Related output</p>
+          <div class="detail-sidebar__stack">
+            <p class="muted">No related entries yet.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

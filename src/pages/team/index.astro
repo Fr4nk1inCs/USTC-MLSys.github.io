@@ -1,0 +1,137 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { site } from "../../data/site.ts";
+
+const members = await getCollection("team");
+
+const groupOrder = [
+  "faculty",
+  "postdoc",
+  "phd",
+  "master",
+  "engineer",
+  "alumni",
+] as const;
+const groupLabels: Record<string, string> = {
+  faculty: "Faculty",
+  postdoc: "Postdocs",
+  phd: "PhD students",
+  master: "Master's students",
+  engineer: "Research engineers",
+  alumni: "Alumni",
+};
+
+const grouped = new Map<string, typeof members>();
+for (const m of members) {
+  const g = m.data.group;
+  if (!grouped.has(g)) grouped.set(g, []);
+  grouped.get(g)!.push(m);
+}
+const activeGroups = groupOrder.filter((g) => grouped.has(g));
+
+type MemberView = {
+  slug: string;
+  name: string;
+  role: string;
+  photo?: string;
+  initials: string;
+  interests: string[];
+  links: Array<{ label: string; href: string; external: boolean }>;
+  Content: any;
+};
+
+const memberViews: MemberView[] = await Promise.all(
+  members.map(async (m) => {
+    const { Content } = await render(m);
+    const initials = m.data.name
+      .split(" ")
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join("")
+      .toUpperCase();
+    const links: Array<{ label: string; href: string; external: boolean }> = [];
+    if (m.data.homepage)
+      links.push({ label: "Homepage", href: m.data.homepage, external: true });
+    if (m.data.github)
+      links.push({ label: "GitHub", href: m.data.github, external: true });
+    if (m.data.email)
+      links.push({
+        label: "Email",
+        href: "mailto:" + m.data.email,
+        external: false,
+      });
+    return {
+      slug: m.id,
+      name: m.data.name,
+      role: m.data.role,
+      photo: m.data.photo,
+      initials,
+      interests: m.data.researchInterests,
+      links,
+      Content,
+    };
+  }),
+);
+
+const memberViewMap = Object.fromEntries(memberViews.map((v) => [v.slug, v]));
+---
+<BaseLayout title="Team" description="Current team information included on the site." currentSection="team" pageKind="team">
+  <section class="page-intro">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>{site.tagline}</p>
+      <h1 class="page-intro__title" data-reveal>Team</h1>
+      <p class="page-intro__summary" data-reveal>Our people.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="shell">
+      {activeGroups.map(groupKey => {
+        const groupMembers = grouped.get(groupKey)!;
+        return (
+          <section class="team-section">
+            <div class="team-section__heading" data-reveal>
+              <p>{groupLabels[groupKey]}</p>
+            </div>
+            <div class="team-grid">
+              {groupMembers.map(member => {
+                const v = memberViewMap[member.id];
+                return (
+                  <article class="team-card" data-reveal>
+                    {v.photo
+                      ? (
+                        <div class="team-card__avatar team-card__avatar--photo" aria-hidden="true">
+                          <img src={v.photo} alt={v.name} loading="lazy" />
+                        </div>
+                      )
+                      : (
+                        <div class="team-card__avatar" aria-hidden="true">{v.initials}</div>
+                      )
+                    }
+                    <div class="team-card__body">
+                      <p class="team-card__role">{v.role}</p>
+                      <h3>{v.name}</h3>
+                      <v.Content />
+                      <div class="chip-row">
+                        {v.interests.map(interest => (
+                          <span class="chip">{interest}</span>
+                        ))}
+                      </div>
+                      <div class="card-actions">
+                        {v.links.map(link => (
+                          link.external
+                            ? <a class="button button--ghost button--compact" href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+                            : <a class="button button--ghost button--compact" href={link.href}>{link.label}</a>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </section>
+</BaseLayout>

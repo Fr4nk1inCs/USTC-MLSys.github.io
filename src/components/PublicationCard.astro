@@ -1,0 +1,53 @@
+---
+import type { CollectionEntry } from "astro:content";
+import TagChips from "./TagChips.astro";
+
+interface Props {
+  publication: CollectionEntry<"publications">;
+  compact?: boolean;
+}
+
+const { publication, compact = false } = Astro.props;
+const { data, id: slug } = publication;
+
+const accentClass = data.award
+  ? "publication-card--award"
+  : "publication-card--venue";
+const classes = [
+  "publication-card",
+  accentClass,
+  compact ? "publication-card--compact" : "",
+]
+  .filter(Boolean)
+  .join(" ");
+
+const filterTags = [
+  data.type.toLowerCase().replace(/\s+/g, "-"),
+  data.researchArea.toLowerCase().replace(/[\s/]+/g, "-"),
+].join(" ");
+
+const datePart = data.month?.trim() ? `${data.month} ${data.year}` : "";
+---
+<article class={classes} data-reveal data-filter-item data-filter-tags={filterTags}>
+  <div class="publication-card__meta">
+    <span>{data.venue}</span>
+    {datePart && <span>{datePart}</span>}
+    {data.award && <span class="publication-card__award">{data.award}</span>}
+  </div>
+  <h3 class="publication-card__title">
+    <a href={`/publications/${slug}/`}>{data.title}</a>
+  </h3>
+  <p class="publication-card__authors">{data.authors.join(', ')}</p>
+  <p class="publication-card__summary">{data.summary}</p>
+  <div class="chip-row">
+    <TagChips tags={data.tags} />
+  </div>
+  <div class="card-actions">
+    {data.pdfUrl && (
+      <a class="button button--ghost button--compact" href={data.pdfUrl} target="_blank" rel="noreferrer">PDF</a>
+    )}
+    {data.codeUrl && (
+      <a class="button button--ghost button--compact" href={data.codeUrl} target="_blank" rel="noreferrer">Code</a>
+    )}
+  </div>
+</article>

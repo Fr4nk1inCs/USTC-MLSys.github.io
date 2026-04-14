@@ -1,0 +1,56 @@
+---
+import type { CollectionEntry } from "astro:content";
+import TagChips from "./TagChips.astro";
+
+interface Props {
+  member: CollectionEntry<"team">;
+}
+
+const { member } = Astro.props;
+const { data } = member;
+
+const initials = data.name
+  .split(" ")
+  .slice(0, 2)
+  .map((p: string) => p[0])
+  .join("")
+  .toUpperCase();
+const bio = await member
+  .render()
+  .then(({ Content }) => Content)
+  .catch(() => null);
+
+const links: Array<{ label: string; href: string }> = [];
+if (data.homepage) links.push({ label: "Homepage", href: data.homepage });
+if (data.github) links.push({ label: "GitHub", href: data.github });
+if (data.email) links.push({ label: "Email", href: `mailto:${data.email}` });
+---
+<article class="team-card" data-reveal>
+  {data.photo
+    ? (
+      <div class="team-card__avatar team-card__avatar--photo" aria-hidden="true">
+        <img src={data.photo} alt={data.name} loading="lazy" />
+      </div>
+    )
+    : (
+      <div class="team-card__avatar" aria-hidden="true">{initials}</div>
+    )
+  }
+  <div class="team-card__body">
+    <p class="team-card__role">{data.role}</p>
+    <h3>{data.name}</h3>
+    <slot />
+    <div class="chip-row">
+      <TagChips tags={data.researchInterests} />
+    </div>
+    <div class="card-actions">
+      {links.map(({ label, href }) => (
+        <a
+          class="button button--ghost button--compact"
+          href={href}
+          {...(href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})}
+        >{label}</a>
+      ))}
+    </div>
+  </div>
+</article>

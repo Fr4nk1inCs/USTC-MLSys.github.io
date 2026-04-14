@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { site } from "../../data/site.ts";
+---
+<BaseLayout title="Join" description="Join MLSys Lab at USTC." currentSection="join" pageKind="join">
+  <section class="page-intro">
+    <div class="shell">
+      <p class="page-intro__eyebrow" data-reveal>{site.tagline}</p>
+      <h1 class="page-intro__title" data-reveal>Join Us</h1>
+      <p class="page-intro__summary" data-reveal>We are looking for motivated students and researchers to join our team.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="shell">
+      <p>Contact us at <a href={`mailto:${site.email || 'chengli7@ustc.edu.cn'}`}>{site.email || 'chengli7@ustc.edu.cn'}</a> if you are interested.</p>
+    </div>
+  </section>
+</BaseLayout>
