@@ -1,11 +1,11 @@
-import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
+import { defineConfig } from "astro/config";
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
-  site: 'https://ustc-mlsys.github.io',
+  site: "https://test.fr4nk1in.top",
   integrations: [mdx(), sitemap()],
   build: {
-    format: 'directory',
+    format: "directory",
   },
 });
